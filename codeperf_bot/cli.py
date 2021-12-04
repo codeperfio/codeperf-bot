@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 import traceback
@@ -24,13 +25,7 @@ cache = cachetools.LRUCache(maxsize=500)
 routes = web.RouteTableDef()
 
 
-@routes.get("/", name="home")
-async def handle_get(request):
-    return web.Response(status=200)
-
-
-@routes.post("/webhook")
-async def webhook(request):
+async def main(request):
     try:
         body = await request.read()
         event = sansio.Event.from_http(request.headers, body, secret=GH_SECRET)
@@ -38,9 +33,11 @@ async def webhook(request):
             return web.Response(status=200)
         async with aiohttp.ClientSession() as session:
             gh = gh_aiohttp.GitHubAPI(session, "demo", cache=cache)
+            # Give GitHub some time to reach internal consistency.
+            await asyncio.sleep(1)
             await router.dispatch(event, gh)
         try:
-            print("GH requests remaining:", gh.rate_limit.remaining)
+            logging.info("GH requests remaining:", gh.rate_limit.remaining)
         except AttributeError:
             pass
         return web.Response(status=200)
@@ -73,19 +70,18 @@ async def repo_installation_added(event, gh, *args, **kwargs):
         },
         oauth_token=installation_access_token["token"],
     )
-    print(response)
+    logging.info(response)
 
 
-def main():
+def cli():
     if (
         (check_env_var(GH_SECRET, "GH_SECRET") is False)
         or (check_env_var(GH_PRIVATE_KEY, "GH_PRIVATE_KEY") is False)
         or (check_env_var(GH_APP_ID, "GH_APP_ID") is False)
     ):
         exit(1)
-
     app = web.Application()
-    app.router.add_routes(routes)
+    app.router.add_post("/", main)
     port = PORT
     if port is not None:
         port = int(port)
