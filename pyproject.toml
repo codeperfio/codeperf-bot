@@ -6,7 +6,7 @@ authors = ["codeperf <hello@codeperf.io>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-codeperf-gh-bot = "codeperf_bot.cli:main"
+codeperf-gh-bot = "codeperf_bot.cli:cli"
 
 [tool.poetry.dependencies]
 python = "^3.6.2"
