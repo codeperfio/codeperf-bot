@@ -28,7 +28,7 @@ routes = web.RouteTableDef()
 async def main(request):
     try:
         body = await request.read()
-        event = sansio.Event.from_http(request.headers, body)
+        event = sansio.Event.from_http(request.headers, body, secret=GH_SECRET)
         if event.event == "ping":
             return web.Response(status=200)
         async with aiohttp.ClientSession() as session:
@@ -85,4 +85,5 @@ def cli():
     port = PORT
     if port is not None:
         port = int(port)
+    logging.basicConfig(level=logging.DEBUG)
     web.run_app(app, port=port)
