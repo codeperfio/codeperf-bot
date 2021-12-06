@@ -23,6 +23,7 @@ pytest-cov = "^2.12.1"
 codecov = "^2.1.12"
 tox-poetry-installer = {extras = ["poetry"], version = "^0.8.1"}
 tox-docker = {extras = ["poetry"], version = "^3.0.0"}
+pytest-aiohttp = "^0.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
