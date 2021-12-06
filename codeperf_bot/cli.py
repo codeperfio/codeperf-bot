@@ -74,10 +74,8 @@ async def repo_installation_added(event, gh, *args, **kwargs):
 
 
 def cli():
-    if (
-        (check_env_var(GH_SECRET, "GH_SECRET") is False)
-        or (check_env_var(GH_PRIVATE_KEY, "GH_PRIVATE_KEY") is False)
-        or (check_env_var(GH_APP_ID, "GH_APP_ID") is False)
+    if (check_env_var(GH_PRIVATE_KEY, "GH_PRIVATE_KEY") is False) or (
+        check_env_var(GH_APP_ID, "GH_APP_ID") is False
     ):
         exit(1)
     app = web.Application()
@@ -85,4 +83,5 @@ def cli():
     port = PORT
     if port is not None:
         port = int(port)
+    logging.basicConfig(level=logging.DEBUG)
     web.run_app(app, port=port)
